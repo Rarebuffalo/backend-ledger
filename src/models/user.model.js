@@ -1,4 +1,4 @@
-mongoose = require("mongoose")
+const mongoose = require("mongoose")
 const bcrypt = require("bcryptjs")
 
 
@@ -21,21 +21,15 @@ const userSchema = new mongoose.Schema({
     required: [true, "password is required"],
     minlength: [6, "Password must be at least 6 characters"],
     select: false
-  },
-  timestamps: true
-});
+  }
+}, { timestamps: true });
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next()
+    return
   }
-  try {
-    const hash = await bcrypt.hash(this.password, 10)
-    this.password = hash
-    next()
-  } catch (error) {
-    next(error)
-  }
+  const hash = await bcrypt.hash(this.password, 10)
+  this.password = hash
 }); 
 
 userSchema.methods.comparePassword = async function (password) {
